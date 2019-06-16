@@ -1,3 +1,8 @@
+/*
+* @brief: LFU算法，模板类，支持指定访问频率，指定数据权重，更加自由灵活搭配使用
+* @author: guiweiwei
+* @date: 2019-06-16
+*/
 #ifndef LFU_H
 #define LFU_H
 
@@ -33,7 +38,7 @@ public:
 	// 测试使用
 	void print()
 	{
-		int last_freq = 0;
+		size_t last_freq = 0;
 		for (ListIter iter_begin = mVals.begin(); iter_begin != mVals.end(); ++iter_begin) {
 			std::cout << iter_begin->mVal << "(" << iter_begin->mFreq << ")" << ", ";
 			assert(last_freq <= iter_begin->mFreq);
@@ -42,6 +47,9 @@ public:
 		std::cout << std::endl;
 	}
 
+	/*
+	* @brief: 访问指定key的数据，支持自定义访问频率，默认访问频率为1
+	*/
 	VALUE get(KEY _key, size_t _freq = 1)
 	{
 		// 找不到该key，返回0
@@ -50,6 +58,7 @@ public:
 			return 0;
 		}
 
+		// 更新频率
 		ListIter list_iter = map_iter->second;
 		list_iter->mFreq += _freq;
 
@@ -59,6 +68,9 @@ public:
 		return list_iter->mVal;
 	}
 
+	/*
+	* @brief: 添加新的数据，支持指定权重，指定频率
+	*/
 	void put(KEY _key, VALUE _val, size_t _weight = 1, size_t _freq = 1)
 	{
 		// 如果已经存在该key, 不更新值直接返回
@@ -87,7 +99,9 @@ public:
 	}
 
 private:
-	// 开头删除一个数据
+	/*
+	* @beief: 删除访问频率最低的数据
+	*/
 	void pop()
 	{
 		ListIter last_iter = mVals.begin();
@@ -97,7 +111,7 @@ private:
 	}
 
 	/*
-		@brief 添加数据到合适的位置
+		@brief: 添加数据到合适的位置
 	*/
 	void push(const SValueInfo &_info)
 	{
@@ -145,7 +159,9 @@ private:
 		return mVals.end();
 	}
 
-	// 返回超时移动的位数
+	/*
+	* @brief: 返回超时移动的位数
+	*/
 	int timeout()
 	{
 		std::time_t cur_t = std::time(0);
@@ -155,11 +171,13 @@ private:
 		}
 
 		mTimeStamp = cur_t;
-		int _move = interval_t / mTimeOut;
+		int _move = static_cast<int>(interval_t / mTimeOut);
 		return _move >= 32 ? 31 : _move;
 	}
 
-	// 所有频率右移一位
+	/*
+	* @brief: 所有频率右移一位
+	*/
 	void decreaseFreq()
 	{
 		// 返回右移位数
@@ -167,8 +185,6 @@ private:
 		if (dec == 0) {
 			return;
 		}
-
-		std::cout << "decrease a bit" << std::endl; // 测试使用
 
 		// 整体减少频率
 		for (ListIter iter_begin = mVals.begin(); iter_begin != mVals.end(); ++iter_begin) {
