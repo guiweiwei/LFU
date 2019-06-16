@@ -50,12 +50,12 @@ public:
 	/*
 	* @brief: 访问指定key的数据，支持自定义访问频率，默认访问频率为1
 	*/
-	VALUE get(KEY _key, size_t _freq = 1)
+	bool get(KEY _key, VALUE &val, size_t _freq = 1)
 	{
 		// 找不到该key，返回0
 		MapIter map_iter = mIndex.find(_key);
 		if (map_iter == mIndex.end()) {
-			return 0;
+			return false;
 		}
 
 		// 更新频率
@@ -65,7 +65,9 @@ public:
 		// 重新排序
 		sort(list_iter);
 
-		return list_iter->mVal;
+		val = list_iter->mVal;
+
+		return true;
 	}
 
 	/*
